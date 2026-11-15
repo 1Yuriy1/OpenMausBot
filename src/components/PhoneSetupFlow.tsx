@@ -980,6 +980,20 @@ export function PhoneSetupFlowView({ controller }: { controller: PhoneSetupContr
         <div className="my-4 flex items-center gap-3 text-[11px] text-ink-secondary">
           <span className="h-px flex-1 bg-hairline/40" /> {t("phone.signIn.or")} <span className="h-px flex-1 bg-hairline/40" />
         </div>
+        {c.tailscaleAvailable && (
+          <>
+            <button
+              disabled={c.busy || c.accountBusy}
+              onClick={c.useTailscale}
+              className="flex items-center justify-center gap-2 rounded-lg border border-hairline/50 py-2.5 text-[13px] text-ink hover:bg-control disabled:opacity-40"
+            >
+              <ShieldCheck size={15} /> {t("remote.pairOverTailscale")}
+            </button>
+            <p className="mb-3 mt-2 text-center text-[11px] leading-relaxed text-ink-secondary">
+              {t("phone.signIn.tailnetNote")}
+            </p>
+          </>
+        )}
         <button
           disabled={c.busy || c.accountBusy}
           onClick={c.useLocal}

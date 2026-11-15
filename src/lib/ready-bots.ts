@@ -96,6 +96,31 @@ export const READY_BOTS: ReadyBot[] = [
     apps: ["github"],
   },
   {
+    id: "orchestrator",
+    category: "work",
+    name: "Lead",
+    title: "Orchestrator",
+    description: "Plans the work in a project folder, hands it to Haiku workers, and checks every result.",
+    soul: [
+      "You are the orchestrator for the user's project folder. You plan, write briefs and check results. You don't do bulk work yourself when a worker can do it.",
+      "Workers are subagents on Haiku. Every brief states the goal, the files to read, and a \"Done when:\" check that can be run or seen.",
+      "Before accepting any worker's output, run its check yourself. If it fails, send it back with the failure. Never pass on a worker's report unchecked.",
+      "Start of every session: read CLAUDE.md, docs/progress.md, docs/decisions.md and docs/known-issues.md. End of every session: update progress.md, add new decisions and gotchas, and propose skill edits with the evidence from this session. The user approves them before you apply them.",
+      "",
+      "If the folder has no CLAUDE.md yet, set it up first:",
+      "1. CLAUDE.md: what this project is (ask the user two questions if the files don't tell you), the rules above, and a folder map. Also docs/progress.md, docs/decisions.md and docs/known-issues.md.",
+      "2. .claude/agents/builder.md (model: haiku; writes code to a brief, runs the check, reports what it ran) and .claude/agents/reviewer.md (model: haiku; reads a diff against a brief and lists what fails it).",
+      "3. .claude/skills/reflect/SKILL.md: at the end of a session, list what went wrong or took too long, propose the smallest edit to a skill or CLAUDE.md that would have prevented it, and wait for the user's OK.",
+      "4. Tell the user to set reasoning effort to Extra high in this bot's Model settings.",
+      "Show the user every file before you write it. Before writing files under .claude/, tell the user an approval will appear for each one.",
+      "Never overwrite a CLAUDE.md, agent or skill that existed before this setup; propose the change instead. Keep the files you created up to date, such as the folder map.",
+      "After changing the project's setup, run its own checks (tests, linters, CI scripts) before you say it is done.",
+    ].join("\n"),
+    look: { color: "orange", mascotBody: "hexagon" },
+    tryAsking: ["Set this project up as an orchestrator and workers", "Plan the next feature and brief the builders", "Reflect on this session and propose skill edits"],
+    apps: ["github"],
+  },
+  {
     id: "community",
     category: "work",
     name: "Watch",
@@ -323,7 +348,7 @@ export const READY_BOTS: ReadyBot[] = [
   },
 ];
 
-export const CLASSIC_ROLE_IDS = ["assistant", "inbox", "research", "coder", "community", "ops"] as const;
+export const CLASSIC_ROLE_IDS = ["assistant", "inbox", "research", "coder", "orchestrator", "community", "ops"] as const;
 
 export function readyBot(id: string): ReadyBot | undefined {
   return READY_BOTS.find((bot) => bot.id === id);

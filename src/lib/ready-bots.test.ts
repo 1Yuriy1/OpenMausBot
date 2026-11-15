@@ -6,6 +6,7 @@ import { setLocale } from "./i18n";
 import en from "@/locales/en.json";
 import { MASCOT_BODY_IDS } from "../../shared/mascot-bodies";
 import type { NewBotDefaults } from "../../shared/new-bot-defaults";
+import { PROJECT_ORCHESTRATOR } from "../../server/chief-of-staff";
 
 const defaults = (): NewBotDefaults => ({
   profile: {
@@ -39,6 +40,11 @@ describe("ready-made bots", () => {
       expect(new TextEncoder().encode(bot.soul).length).toBeLessThan(24_000);
       expect(bot.soul.length).toBeGreaterThan(200);
     }
+  });
+
+  it("include the Orchestrator under the name and title MausBot sends people to", () => {
+    const lead = readyBot("orchestrator")!;
+    expect(PROJECT_ORCHESTRATOR).toContain(`Templates → ${lead.name}, ${lead.title}`);
   });
 
   it("only ever bring paused routines and notes under the memory folder", () => {

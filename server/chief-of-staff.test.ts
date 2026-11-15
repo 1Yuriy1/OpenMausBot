@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { chiefOfStaffSystemPrompt, chiefTidies, EVERYONE_ON_THE_MAP } from "./chief-of-staff.ts";
+import { chiefOfStaffSystemPrompt, chiefTidies, EVERYONE_ON_THE_MAP, PROJECT_ORCHESTRATOR } from "./chief-of-staff.ts";
 
 describe("chiefTidies", () => {
   const chief = { id: "chief", name: "Chief", section: "Work", chiefOfStaff: true };
@@ -130,6 +130,7 @@ describe("chiefOfStaffSystemPrompt", () => {
         "Incidents: when a teammate's run fails, stalls or cannot start, OpenMausBot reports it to you in your \"Problems to look at\" thread with a link to the thread. Read the report, then either call retry_thread to resume that thread where it stopped, coordinate_bots with a corrected brief when the request itself must change, or — when only the person can fix the cause (a sign-in, a missing credential, an unanswered question, a setting) — say so plainly and stop. Never retry the same thread more than twice; report what failed and what you did in one or two sentences.",
         "Use list_bots or list_room_targets for the live reachable roster. Use coordinate_bots to assign actual teammates concrete work, or with consult: true to ask them for advice. It returns immediately and keeps you available to the user; give clear, self-contained briefs, then end your turn — you resume automatically when their results return, success or failure. Say that work is assigned, not completed; only claim completion after the teammate's result has actually arrived, and if a teammate fails or stalls, tell the user plainly and decide the next step yourself. Leads can coordinate their own specialists. Do not poll or wait, send acknowledgements as new work, or substitute native helpers for named bots. On return, verify the requested outcome, resolve decisions within the user's scope, request concrete corrections with rework=true when necessary, and return one consolidated answer. Consultations are advice, not proof that work or tests ran. A refusal from coordinate_bots means nothing was sent: fix what it names (usually the id — copy it from list_bots or your roster; a unique teammate name also works) and retry, and never describe a handoff the tool did not accept.",
         "Housekeeping: list_threads also shows threads one teammate opened on another (marked \"opened by\"), and you may close_thread those once they are idle and their work is done. Threads the person started are theirs: never close them.",
+        PROJECT_ORCHESTRATOR,
         "When the user asks you to assemble or configure a team, use list_team_setup for the exact authorized teams, bot IDs and model catalog, then propose_team_setup once with all named specialists and their profile/model changes. Include new teams explicitly; the plan covers their creation and your access. Existing thread models and other bots' execution permissions stay unchanged. Follow the tool result: the plan applies immediately at every access level and the person can undo it; after an applied result, continue already-requested work without another confirmation. Only if review is pending, end your turn: the user's decision automatically resumes you once with a structured result. Report failed or cancelled results honestly. Do not ask for another yes, poll, or repeat the proposal. After successful setup, use the available coordination tools for already requested work. For explicitly requested bot deletion, use propose_bot_deletion separately and follow its applied or pending result too.",
         "Current Work department (your team):",
         "- Quill — Writer: Drafts concise copy [id: writer]",
@@ -158,6 +159,13 @@ describe("chiefOfStaffSystemPrompt", () => {
 
     expect(prompt).toContain("Patch — Engineer [id: coder]");
     expect(prompt).not.toContain("Quill");
+  });
+});
+
+describe("a project set up as an orchestrator with workers", () => {
+  it("sends every Chief and MausBot to the Orchestrator template, with delegation or without", () => {
+    expect(chiefOfStaffSystemPrompt("chief", [{ id: "chief", name: "Clive", chiefOfStaff: true }], false)).toContain(PROJECT_ORCHESTRATOR);
+    expect(chiefOfStaffSystemPrompt("maus", [{ id: "maus", name: "MausBot", defaultBot: {} }], true)).toContain(PROJECT_ORCHESTRATOR);
   });
 });
 

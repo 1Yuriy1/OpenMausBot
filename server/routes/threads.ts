@@ -1,5 +1,6 @@
 import { userError } from "../user-errors.ts";
 import { basename, join } from "node:path";
+import { pipeline } from "node:stream";
 
 import type { WireBot, WireGroup } from "../../shared/wire.ts";
 import {
@@ -280,10 +281,14 @@ export function createThreadRoutes(deps: ThreadRouteDeps): RouteHandler {
         await file.handle.close();
         return res.end();
       }
-      const stream = file.handle.createReadStream({ start: 0, end: file.bytes - 1, autoClose: true });
-      stream.on("error", () => res.destroy());
-      res.on("close", () => stream.destroy());
-      stream.pipe(res);
+      // Node 26 ends the process when a FileHandle is garbage-collected open (ERR_INVALID_STATE). A reader that left before
+      // the stream started gets the handle closed here, since pipeline refuses a destroyed response; otherwise pipeline
+      // destroys the stream, and so closes the handle, however the response ends.
+      if (res.destroyed) {
+        await file.handle.close().catch(() => undefined);
+        return;
+      }
+      pipeline(file.handle.createReadStream({ start: 0, end: file.bytes - 1, autoClose: true }), res, () => {});
       return;
     }
 

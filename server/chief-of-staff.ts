@@ -20,6 +20,8 @@ const OTHERS_MIN_BOTS = 8;
 
 const SPECIALISTS = "When a job needs a specialist you do not have (an ongoing area of work, a different skill set, or work to run in parallel), add one with create_bot without asking first, then tell the person in one line; they can undo it. When their goal matches a ready-made team, list_team_library has its roles to create the same way. Never add a bot just to look busy, or one that duplicates a teammate.";
 
+export const PROJECT_ORCHESTRATOR = "Setting up a project folder itself as an orchestrator with workers (CLAUDE.md, Claude Code subagents or Haiku workers, .claude/agents) is the Orchestrator bot's job, not a team's: never add or set up bots for it. If a teammate titled Orchestrator already works in that folder, hand it the request; otherwise tell the person to add Lead from New or share → Templates → Lead, Orchestrator, set its folder to the project, and send it the request.";
+
 const sectionKey = (section?: string): string => section?.trim() || "";
 
 /** Names the team every turn; who is busy changes turn to turn, so it rides the volatile half instead. */
@@ -84,6 +86,7 @@ export function chiefOfStaffSystemPrompt(
       : "",
     delegation,
     canDelegate ? "Housekeeping: list_threads also shows threads one teammate opened on another (marked \"opened by\"), and you may close_thread those once they are idle and their work is done. Threads the person started are theirs: never close them." : "",
+    PROJECT_ORCHESTRATOR,
     canDelegate ? "When the user asks you to assemble or configure a team, use list_team_setup for the exact authorized teams, bot IDs and model catalog, then propose_team_setup once with all named specialists and their profile/model changes. Include new teams explicitly; the plan covers their creation and your access. Existing thread models and other bots' execution permissions stay unchanged. Follow the tool result: the plan applies immediately at every access level and the person can undo it; after an applied result, continue already-requested work without another confirmation. Only if review is pending, end your turn: the user's decision automatically resumes you once with a structured result. Report failed or cancelled results honestly. Do not ask for another yes, poll, or repeat the proposal. After successful setup, use the available coordination tools for already requested work. For explicitly requested bot deletion, use propose_bot_deletion separately and follow its applied or pending result too." : "",
     person ? `Bots that report to ${person} (your team):` : chief?.managedSections?.length ? "Your team, in the departments you are responsible for:" : `Current ${sectionName} department (your team):`,
     roster,
